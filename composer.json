@@ -1,0 +1,15 @@
+{
+   "name": "paranodev/comet",
+   "type": "project",
+   "license": "self",
+   "authors": [
+      {
+         "name": "paranodev",
+         "email": "paranodev@gmail.com"
+      }
+   ],
+   "autoload": {
+      "classmap": ["atom", "app", "dbs", "map", "view", "face"]
+    },
+   "require": {}
+}

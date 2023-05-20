@@ -1,0 +1,13 @@
+<?php
+
+namespace {clas.space};
+
+use Comet\Atom\Chest\Facade;
+
+class {clas.name} extends Facade
+{
+   protected static function getScalar()
+   {
+      return {clas.path};
+   }
+}

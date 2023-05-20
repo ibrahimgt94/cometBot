@@ -1,0 +1,15 @@
+<?php
+
+namespace Comet\App\Bot;
+
+class {class}
+{
+   private $app, $lesa, $gram;
+
+   private $rebase, $reglass, $reline;
+
+   public function boot()
+   {
+
+   }
+}

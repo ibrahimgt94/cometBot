@@ -1,0 +1,1 @@
+select * from `session` where  `session`.`uniqid` = :rodc28926 and  `session`.`name` = :ro402da0e

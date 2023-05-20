@@ -1,0 +1,208 @@
+#!/usr/bin/env php
+<?php
+
+require_once("vendor/autoload.php");
+
+$app = new Comet\Atom\Chest\App(__DIR__);
+
+$app->sheet("comet.atom.chest.bash");
+
+$console = $app->build("comet.atom.chest.bash");
+
+$console->booting($argv);
+
+$console->command("help", function($app, $bash){
+   $bash->fruit("list all action")->newline()
+      ->fuel("algo:tag", 9)->write(":: migrate tags")->newline()
+      ->fuel("algo:all", 9)->write(":: migrate all tag")->newline()
+      ->fuel("make:face", 9)->write(":: create facade file")->newline()
+      ->fuel("route:list", 9)->write(":: show all routes")->newline()
+   ->send();
+});
+
+$console->command("algo:tag", function($app, $bash, $args){
+   $bash->checking("algo.tag", "pls send: 01,02,...", $args);
+
+   $list = explode(",", $args);
+
+   array_walk($list, function($tag) use ($app, $bash){
+      $path = "algo.tag{$tag};php";
+
+      ($app->file->existsbool($path))
+         ? $app->file->loader($path)
+         : $bash->write("file not exists")
+            ->tomato("tag{$tag}")->newline()->send();
+   });
+});
+
+$console->command("algo:all", function($app, $bash){
+   $paths = $app->file->scan("algo");
+
+   array_walk($paths, function($path) use ($app){
+      ($app->file->existsbool($path))
+         ? $app->file->loader($path)
+         : $bash->write("file not exists")
+            ->tomato(explode(";", $path)[0])->line()->send();
+   });
+});
+
+$console->command("make:face", function($app, $bash, $args){
+   $bash->checking("make.face", "pls send: class_name:path_namespace", $args);
+
+   [$name, $space] = explode(":", $args);
+
+   $facename = $bash->cipher("comet.{$space}");
+
+   if($app->file->existsbool("face.{$facename};php")){
+      $bash->write("facade")->desire("comet.{$space}")
+         ->write("is exists")->newline()->send();
+      return;
+   }
+
+   $tempfile = $app->file->read("atom.temp.face;tem");
+
+   $spacepop = explode(".", $space);
+
+   array_pop($spacepop);
+
+   $spacepop = ucwords(implode("\\", $spacepop), "\\");
+
+   $claspath = "Comet\\Face\\{$spacepop}";
+
+   $tempfile = str_replace(["{clas.name}", "{clas.path}", "{clas.space}"],
+      [ucfirst($name), "\"comet.{$space}\"", $claspath], $tempfile);
+
+   $status = $app->file->write("face.{$facename};php", $tempfile);
+
+   exec('composer dump-autoload --quiet');
+
+   $bash->write("create facade file")->fuel(($status) ? "success" : "error")
+      ->newline()->write("file name:")->orange($facename)
+      ->fruit("-> composer update")->newline()->send();
+});
+
+$console->command("route:list:web", function($app, $bash, $args){
+   $router = $app->app->build("comet.atom.route.web");
+
+   $app->file->loader("map.web;php", ["router" => $router]);
+
+   $bash->repeat("---", 34)->newline()->write("|")
+      ->fuel("hash", 11)->write("|")
+      ->fuel("path uri", 30)->write("|")
+      ->fuel("method", 7)->write("|")
+      ->fuel("class", 13)->write("|")
+      ->fuel("function", 13)->write("|")
+      ->fuel("alias", 9)->write("|")
+      ->newline()->repeat("---", 34)->newline()->send();
+
+   $routeList = $router->getRouteList();
+
+   array_walk($routeList, function($rows, $selat) use ($bash){
+      $prefix = ($rows->prefix == "nls") ? "" : "{$rows->prefix}_";
+      $bash->write("|")
+         ->write($selat, 11)->write("|")
+         ->write("{$prefix}{$rows->pxone}_$rows->pxtwo", 30)->write("|")
+         ->write($rows->method, 7)->write("|")
+         ->write($rows->tgone, 13)->write("|")
+         ->write($rows->tgtwo, 13)->write("|")
+         ->write($rows->alias ?? "nls", 9)->write("|")
+         ->newline()->send();
+   });
+
+   $bash->repeat("---", 34)->newline()->send();
+});
+
+$console->command("make:dbs", function($app, $bash, $args){
+   $bash->checking("make.dbs", "not match e.x: user", $args);
+
+   [$upper, $lower] = [ucfirst($args), strtolower($args)];
+
+   if($app->file->existsbool("dbs.{$lower};php")){
+      $bash->write("dbs")->orange($lower)->write("is exists")->newline()->send();
+      return;
+   }
+
+   $tempfile = $app->file->read("atom.temp.dbs;tem");
+
+   $tempfile = str_replace(["{class}", "{table}"], [$upper, $lower], $tempfile);
+
+   $status = $app->file->write("dbs.{$lower};php", $tempfile);
+
+   exec('composer dump-autoload --quiet');
+
+   $bash->write("create dbs file")->fuel(($status) ? "success" : "error")
+      ->newline()->write("file name:")->orange($lower)
+      ->fruit("-> composer update")->newline()->send();
+});
+
+$console->command("make:app:bot", function($app, $bash, $args){
+   $bash->checking("make.app.bot", "not match e.x: main", $args);
+
+   [$upper, $lower] = [ucfirst($args), strtolower($args)];
+
+   if($app->file->existsbool("app.bot.{$lower};php")){
+      $bash->write("app bot")->orange($upper)
+         ->write("is exists")->newline()->send();
+      return;
+   }
+
+   $tempfile = $app->file->read("atom.temp.app.bot;tem");
+
+   $tempfile = str_replace("{class}", $upper, $tempfile);
+
+   $status = $app->file->write("app.bot.{$lower};php", $tempfile);
+
+   exec('composer dump-autoload --quiet');
+
+   $bash->write("create app bot file")->fuel(($status) ? "success" : "error")
+      ->newline()->write("file name:")->orange($upper)
+      ->fruit("-> composer update")->newline()->send();
+});
+
+$console->command("make:app:web", function($app, $bash, $args){
+   $bash->checking("make.app.bot", "not match e.x: main", $args);
+
+   [$upper, $lower] = [ucfirst($args), strtolower($args)];
+
+   if($app->file->existsbool("app.web.{$lower};php")){
+      $bash->write("app web")->orange($upper)
+         ->write("is exists")->newline()->send();
+      return;
+   }
+
+   $tempfile = $app->file->read("atom.temp.app.web;tem");
+
+   $tempfile = str_replace("{class}", $upper, $tempfile);
+
+   $status = $app->file->write("app.web.{$lower};php", $tempfile);
+
+   exec('composer dump-autoload --quiet');
+
+   $bash->write("create app web file")->fuel(($status) ? "success" : "error")
+      ->newline()->write("file name:")->orange($upper)
+      ->fruit("-> composer update")->newline()->send();
+});
+
+$console->command("make:app:api", function($app, $bash, $args){
+   $bash->checking("make.app.bot", "not match e.x: main", $args);
+
+   [$upper, $lower] = [ucfirst($args), strtolower($args)];
+
+   if($app->file->existsbool("app.api.{$lower};php")){
+      $bash->write("app api")->orange($upper)
+         ->write("is exists")->newline()->send();
+      return;
+   }
+
+   $tempfile = $app->file->read("atom.temp.app.api;tem");
+
+   $tempfile = str_replace("{class}", $upper, $tempfile);
+
+   $status = $app->file->write("app.api.{$lower};php", $tempfile);
+
+   exec('composer dump-autoload --quiet');
+
+   $bash->write("create app api file")->fuel(($status) ? "success" : "error")
+      ->newline()->write("file name:")->orange($upper)
+      ->fruit("-> composer update")->newline()->send();
+});

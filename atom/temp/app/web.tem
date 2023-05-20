@@ -1,0 +1,18 @@
+<?php
+
+namespace Comet\App\Web;
+
+use Comet\Atom\Chest\App;
+
+class {class}
+{
+   private function guard($reqs, $resp)
+   {
+
+   }
+
+   public function index($reqs, $resp)
+   {
+      
+   }
+}

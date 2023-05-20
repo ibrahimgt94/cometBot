@@ -1,0 +1,11 @@
+<?php
+
+namespace Comet\App\Api;
+
+class {class}
+{
+   public function boot($reqs, $resp)
+   {
+
+   }
+}
